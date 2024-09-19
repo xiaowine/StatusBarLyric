@@ -19,10 +19,11 @@ import android.widget.ImageView
 import statusbar.lyric.view.LyricSwitchView
 
 object LyricViewTools {
-    var animaList: ArrayList<String> = arrayListOf("Top", "Bottom", "Start", "End", "Fade", "ScaleXY", "ScaleX", "ScaleY")
+    private var animaList: ArrayList<String> = arrayListOf("Top", "Bottom", "Start", "End", "Fade", "ScaleXY", "ScaleX", "ScaleY")
     val randomAnima: String get() = animaList.random()
-    fun getAlphaAnimation(into: Boolean, duration: Long = 300): AnimationSet {
-        val alphaAnimation = (if (into) AlphaAnimation(0F, 1F) else AlphaAnimation(1F, 0F)).apply {
+
+    fun getAlphaAnimation(into: Boolean, duration: Long = 250): AnimationSet {
+        val alphaAnimation = (if (into) AlphaAnimation(0f, 1F) else AlphaAnimation(1F, 0f)).apply {
             this.duration = duration
         }
         return AnimationSet(true).apply {
@@ -33,10 +34,10 @@ object LyricViewTools {
     fun switchViewInAnima(str: String?, interpolator: String?, time: Int?): Animation? {
         val t = time?.toLong() ?: 500L
         val translateAnimation: Animation? = when (str) {
-            "Top" -> TranslateAnimation(0F, 0F, 100F, 0F)
-            "Bottom" -> TranslateAnimation(0F, 0F, -100F, 0F)
-            "Start" -> TranslateAnimation(100F, 0F, 0F, 0F)
-            "End" -> TranslateAnimation(-100F, 0F, 0F, 0F)
+            "Top" -> TranslateAnimation(0f, 0f, 100f, 0f)
+            "Bottom" -> TranslateAnimation(0f, 0f, -100f, 0f)
+            "Start" -> TranslateAnimation(100f, 0f, 0f, 0f)
+            "End" -> TranslateAnimation(-100f, 0f, 0f, 0f)
             "Fade" -> null
             "ScaleXY" -> ScaleAnimation(0f, 1f, 0f, 1f)
             "ScaleX" -> ScaleAnimation(0f, 1f, 1f, 1f)
@@ -55,10 +56,10 @@ object LyricViewTools {
     fun switchViewOutAnima(str: String?, time: Int?): Animation? {
         val t = time?.toLong() ?: 500L
         val translateAnimation: Animation? = when (str) {
-            "Top" -> TranslateAnimation(0F, 0F, 0F, -100F)
-            "Bottom" -> TranslateAnimation(0F, 0F, 0F, 100F)
-            "Start" -> TranslateAnimation(0F, -100F, 0F, 0F)
-            "End" -> TranslateAnimation(0F, 100F, 0F, 0F)
+            "Top" -> TranslateAnimation(0f, 0f, 0f, -100f)
+            "Bottom" -> TranslateAnimation(0f, 0f, 0f, +100f)
+            "Start" -> TranslateAnimation(0f, -100f, 0f, 0f)
+            "End" -> TranslateAnimation(0f, 0f + 100f, 0f, 0f)
             "Fade" -> null
             "ScaleXY" -> ScaleAnimation(1f, 0f, 1f, 0f)
             "ScaleX" -> ScaleAnimation(1f, 0f, 1f, 1f)
@@ -84,19 +85,23 @@ object LyricViewTools {
         }
     }
 
-    fun View.hideView() {
+    fun View.hideView(anim: Boolean = true) {
         if (visibility == View.GONE) return
-        val alphaAnimation = getAlphaAnimation(false).apply {
-            setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(animation: Animation) {}
-                override fun onAnimationEnd(animation: Animation) {
-                    visibility = View.GONE
-                }
+        if (anim) {
+            val alphaAnimation = getAlphaAnimation(false).apply {
+                setAnimationListener(object : Animation.AnimationListener {
+                    override fun onAnimationStart(animation: Animation) {}
+                    override fun onAnimationEnd(animation: Animation) {
+                        visibility = View.GONE
+                    }
 
-                override fun onAnimationRepeat(animation: Animation) {}
-            })
+                    override fun onAnimationRepeat(animation: Animation) {}
+                })
+            }
+            startAnimation(alphaAnimation)
+        } else {
+            visibility = View.GONE
         }
-        startAnimation(alphaAnimation)
     }
 
     fun View.showView() {
@@ -121,9 +126,9 @@ object LyricViewTools {
         }.start()
     }
 
-    @SuppressLint("Recycle")
+    @SuppressLint("Recycle", "AnimatorKeep")
     fun LyricSwitchView.textColorAnima(color: Int) {
-        this.setAllView {
+        this.applyToAllViews {
             ObjectAnimator.ofInt(it, "textColor", it.currentTextColor, color).colorAnimator()
         }
     }
@@ -132,4 +137,5 @@ object LyricViewTools {
     fun ImageView.iconColorAnima(startColor: Int, endColor: Int) {
         ObjectAnimator.ofInt(this, "colorFilter", startColor, endColor).colorAnimator()
     }
+
 }

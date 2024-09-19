@@ -8,6 +8,7 @@ import android.graphics.PixelFormat
 import android.graphics.drawable.GradientDrawable
 import android.os.Handler
 import android.os.Looper
+import android.text.TextUtils
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -20,6 +21,7 @@ import android.view.animation.BounceInterpolator
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import cn.fkj233.ui.activity.dp2px
 import com.github.kyuubiran.ezxhelper.EzXHelper
 import statusbar.lyric.R
@@ -30,7 +32,7 @@ import statusbar.lyric.tools.LyricViewTools
 class TitleDialog(context: Context) : Dialog(context) {
 
     private val resourceId = context.resources.getIdentifier("status_bar_height", "dimen", "android")
-    private val statusBarHeight = if (resourceId > 0) context.resources.getDimensionPixelSize(resourceId) else 0
+    private val statusBarHeight = if (resourceId > 0) context.resources.getDimensionPixelSize(resourceId) + 10 else 0
     private val h2 = statusBarHeight / 2
     private val maxWidth = context.resources.displayMetrics.widthPixels / 2 - 80 - statusBarHeight / 2
     var showIng: Boolean = false
@@ -48,14 +50,24 @@ class TitleDialog(context: Context) : Dialog(context) {
         viewYAnimate(false)
     }
 
-    private var textView: LyricTextView = LyricTextView(context).apply {
+    private var textView: TextView = object : TextView(context) {
+        init {
+            ellipsize = TextUtils.TruncateAt.MARQUEE
+            setSingleLine(true)
+            marqueeRepeatLimit = -1
+        }
+
+        override fun isFocused(): Boolean {
+            return true
+        }
+
+    }.apply {
         setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)
         setTextColor(Color.WHITE)
         gravity = Gravity.CENTER
         if (baseGravity != Gravity.CENTER) {
             maxWidth = this@TitleDialog.maxWidth
         }
-        maxLines = 1
     }
     private val iconView: ImageView by lazy {
         ImageView(context).apply {
